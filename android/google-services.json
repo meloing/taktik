@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "350798162024",
+    "project_id": "totale-reussite-7e7a7",
+    "storage_bucket": "totale-reussite-7e7a7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350798162024:android:4547962c12e61cf6c473dd",
+        "android_client_info": {
+          "package_name": "com.archetechnology.totale_reussite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "350798162024-jfd889jg1usq2bn8isqonfcomgij63gv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5pkdB8eBvDxGhQUo5GhFPz_2eAqsAcmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "350798162024-jfd889jg1usq2bn8isqonfcomgij63gv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

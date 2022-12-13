@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">totale reussite</string>
+  <string name="facebook_app_id">441996981454750</string>
+  <string name="fb_login_protocol_scheme">fb441996981454750</string>
+  <string name="facebook_client_token">8bf22b2e8f817755e4ade9e0d4d25b2a</string>
+</resources>
