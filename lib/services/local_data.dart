@@ -8,6 +8,42 @@ class LocalData {
     localStorage ??= await SharedPreferences.getInstance();
   }
 
+  void setCourseLastManageDate(String courseLastManageDate) async{
+    localStorage!.setString('courseLastManageDate', courseLastManageDate);
+  }
+
+  void setArticleLastManageDate(String articleLastManageDate) async{
+    localStorage!.setString('articleLastManageDate', articleLastManageDate);
+  }
+
+  void setMethodLastManageDate(String methodLastManageDate) async{
+    localStorage!.setString('methodLastManageDate', methodLastManageDate);
+  }
+
+  void setProductLastManageDate(String productLastManageDate) async{
+    localStorage!.setString('productLastManageDate', productLastManageDate);
+  }
+
+  void setTopicLastManageDate(String topicLastManageDate) async{
+    localStorage!.setString('topicLastManageDate', topicLastManageDate);
+  }
+
+  void setCompetitionLastManageDate(String competitionLastManageDate) async{
+    localStorage!.setString('competitionLastManageDate', competitionLastManageDate);
+  }
+
+  void setReferralCode(String referralCode) async{
+    localStorage!.setString('referralCode', referralCode);
+  }
+
+  void setPremium(String premium) async{
+    localStorage!.setString('premium', premium);
+  }
+
+  void setPremiumFinish(String premiumFinish) async{
+    localStorage!.setString('premiumFinish', premiumFinish);
+  }
+
   void setUid(String uid) async{
     localStorage!.setString('uid', uid);
   }
@@ -50,6 +86,22 @@ class LocalData {
 
   void setCountry(String country) async{
     localStorage!.setString('country', country);
+  }
+
+  void setPoint(String points) async{
+    localStorage!.setString('points', points);
+  }
+
+  String getPoints() {
+    return localStorage!.getString('points') ?? '0';
+  }
+
+  String getAppLocalVersion() {
+    return localStorage!.getString('appLocalVersion') ?? '0.5.5';
+  }
+
+  String getReferralCode() {
+    return localStorage!.getString('referralCode') ?? '';
   }
 
   String getUid() {
@@ -96,6 +148,38 @@ class LocalData {
     return localStorage!.getString('avatar') ?? '';
   }
 
+  String getPremium(){
+    return localStorage!.getString('premium') ?? '';
+  }
+
+  String getPremiumFinish(){
+    return localStorage!.getString('premiumFinish') ?? '';
+  }
+
+  String getCourseLastManageDate() {
+    return localStorage!.getString('courseLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
+  String getArticleLastManageDate() {
+    return localStorage!.getString('articleLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
+  String getMethodLastManageDate() {
+    return localStorage!.getString('methodLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
+  String getProductLastManageDate() {
+    return localStorage!.getString('productLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
+  String getTopicLastManageDate() {
+    return localStorage!.getString('topicLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
+  String getCompetitionLastManageDate() {
+    return localStorage!.getString('competitionLastManageDate') ?? '2000-12-31 00:00:00';
+  }
+
   void setLoginInfo(Map user) async{
     localStorage!.setString('uid', user["uid"]);
     localStorage!.setString('level', user["level"]);
@@ -112,11 +196,6 @@ class LocalData {
   }
 
   String convert(value){
-    /*
-      Convertir les valeurs pour eviter que les accents créent des problémes
-      dans la partie header
-    */
-
     return Uri.encodeComponent(value.toString());
   }
 

@@ -1,8 +1,7 @@
 import '../../services/utilities.dart';
 import 'package:flutter/material.dart';
-import 'package:social_share/social_share.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:external_path/external_path.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -32,20 +31,23 @@ class SpecificCompetitionScreenState extends State<SpecificCompetitionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            elevation: 0,
+            elevation: 1,
             centerTitle: true,
-            backgroundColor: Colors.blue,
+            iconTheme: const IconThemeData(
+                color: Color(0xff0b65c2)
+            ),
             title: Text(
                 competition["competitionName"].toUpperCase(),
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold
+                style: GoogleFonts.quicksand(
+                    textStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xff0b65c2)
+                    )
                 )
             )
         ),
-        backgroundColor: Colors.grey[100],
-        body: start ?
-        Column(
+        body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
@@ -64,142 +66,97 @@ class SpecificCompetitionScreenState extends State<SpecificCompetitionScreen> {
                                             )
                                         )
                                     ),
-                                    placeholder: (context, url) => const Center(
-                                    child: SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                        child: CircularProgressIndicator()
-                                    )
-                                ),
-                                    errorWidget: (context, url, error) => Container(
-                                        color: Colors.grey,
-                                        height: 200,
-                                        child: const Center(
-                                            child: Text(
-                                                'Concours',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                )
-                                            )
-                                        )
-                                    )
-                            ),
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      competition["competitionName"].toString().toUpperCase(),
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          color: Color(0xfff29200),
-                                          fontWeight: FontWeight.bold
+                                placeholder: (context, url) => Container(
+                                    height: 200,
+                                    color: Colors.grey,
+                                    child: const Center(
+                                      child: SizedBox(
+                                          width: 30,
+                                          height: 30,
+                                          child: CircularProgressIndicator()
                                       )
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Text(
-                                      competition["competitionCountry"].toString(),
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.grey
-                                      )
-                                  ),
-                                  Text(
-                                      competition["competitionContacts"].toString(),
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.grey
-                                      )
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Divider(),
-                                  Row(
-                                      children: [
-                                        const Icon(Icons.add_location_alt_rounded, color: Colors.grey, size: 30),
-                                        const SizedBox(width: 15),
-                                        Expanded(
-                                            child: Text(
-                                                competition["competitionCountry"].toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20
-                                                )
-                                            )
-                                        )
-                                      ]
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                      children: [
-                                        const Icon(Icons.date_range_rounded, color: Colors.grey, size: 30),
-                                        const SizedBox(width: 15),
-                                        Expanded(
-                                            child: Text(
-                                                "Publié le : ${competition["competitionDate"]}",
-                                                style: const TextStyle(
-                                                    fontSize: 20
-                                                )
-                                            )
-                                        )
-                                      ]
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                      children: [
-                                        const Icon(Icons.link_rounded, color: Colors.grey, size: 30),
-                                        const SizedBox(width: 15),
-                                        Expanded(
-                                            child: ParsedText(
-                                                text: competition["competitionLink"].toString().replaceAll('[a]', ""),
-                                                style:  const TextStyle(
-                                                    fontSize: 20,
-                                                    color: Colors.grey
-                                                ),
-                                                parse: <MatchText>[
-                                                  MatchText(
-                                                      type: ParsedType.URL,
-                                                      style: const TextStyle(
-                                                          fontSize: 20,
-                                                          color: Colors.blue
-                                                      ),
-                                                      onTap: (url) async{
-                                                        if (!await canLaunch(url)) throw '';
-                                                      }
-                                                  )
-                                                ]
-                                            )
-                                        )
-                                      ]
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                      children: [
-                                        const Icon(Icons.perm_contact_calendar_rounded, color: Colors.grey, size: 30),
-                                        const SizedBox(width: 15),
-                                        Expanded(
-                                            child: Text(
-                                                competition["competitionContacts"].toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20
-                                                )
-                                            )
-                                        )
-                                      ]
-                                  ),
-                                  const Divider(),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                      "DETAILS DU CONCOURS",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: Color(0xfff29200),
-                                          fontWeight: FontWeight.bold
-                                      )
-                                  ),
-                                  const SizedBox(height: 10),
-                                  MarkDown().body(
-                                      competition["competitionDescription"].replaceAll("[a]", "")
                                   )
-                                ]
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                    height: 200,
+                                    color: Colors.grey,
+                                    child: const Center(
+                                        child: Text(
+                                            'Concours',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      Text(
+                                          competition["competitionName"].toString().toUpperCase(),
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          )
+                                      ),
+                                      const SizedBox(height: 15),
+                                      Text(
+                                          competition["competitionCountry"].toString(),
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 20
+                                          )
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                          "Publié le : ${competition["competitionDate"]}",
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 20
+                                          )
+                                      ),
+                                      const SizedBox(height: 10),
+                                      ParsedText(
+                                          text: competition["competitionLink"].toString().replaceAll('[a]', ""),
+                                          style:  GoogleFonts.rubik(
+                                              fontSize: 20,
+                                              color: Colors.grey
+                                          ),
+                                          parse: <MatchText>[
+                                            MatchText(
+                                                type: ParsedType.URL,
+                                                style: GoogleFonts.rubik(
+                                                    fontSize: 20,
+                                                    color: Colors.blue
+                                                )
+                                            )
+                                          ]
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                          competition["competitionContacts"].toString(),
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 20
+                                          )
+                                      ),
+                                      const Divider(),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                          "DETAILS DU CONCOURS",
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          )
+                                      ),
+                                      const SizedBox(height: 10),
+                                      MarkDown().body(
+                                          competition["competitionDescription"].replaceAll("[a]", "")
+                                      )
+                                    ]
+                                )
                             )
                           ]
                       )
@@ -273,9 +230,6 @@ class SpecificCompetitionScreenState extends State<SpecificCompetitionScreen> {
                   )
               )
             ]
-        ) :
-        const Center(
-            child: CircularProgressIndicator()
         )
     );
   }

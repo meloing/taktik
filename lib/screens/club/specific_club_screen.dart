@@ -1,6 +1,6 @@
+import '../../services/club_api.dart';
 import 'comment_screen.dart';
 import 'new_post_screen.dart';
-import '../../services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:social_share/social_share.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,8 +30,8 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     String clubMemberClubId = club["clubId"];
     String clubMemberUid = LocalData().getUid();
     String clubMemberDate = DateTime.now().toString().split(".")[0];
-    await ManageDatabase().addClubMember(clubMemberUid, clubMemberClubId, clubMemberDate);
-    await LocalDatabase().updateClubIsMember("yes", club["clubId"]);
+    await ClubOnlineRequests().addClubMember(clubMemberUid, clubMemberClubId, clubMemberDate);
+    await ClubOfflineRequests().updateClubIsMember("yes", club["clubId"]);
 
     setState(() { club["isMember"] = "yes"; });
   }
@@ -41,7 +41,8 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     String uid = LocalData().getUid();
     String date = DateTime.now().toString().split(".")[0];
 
-    await ManageDatabase().addPost(club["clubId"], avatar, pseudo, description, date, uid, images);
+    await ClubOnlineRequests().addPost(club["clubId"], avatar, pseudo,
+        description, date, uid, images);
     setState(() {
       Map element = {
         "uid": uid,
@@ -57,7 +58,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   }
 
   Future getPosts() async{
-    List values = await ManageDatabase().getPosts(club["clubId"]);
+    List values = await ClubOnlineRequests().getPosts(club["clubId"]);
 
     setState(() {
       posts.addAll(values);
@@ -66,7 +67,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   }
 
   Future deletePost(String postId, int index) async{
-    await ManageDatabase().deletePost(postId);
+    await ClubOnlineRequests().deletePost(postId);
     setState(() {
       posts.removeAt(index);
       seeDeleteConfirm = false;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../services/user_api.dart';
 import '../../../services/local_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:totale_reussite/screens/user/register/register_step_three_screen.dart';
@@ -12,36 +13,56 @@ class RegisterStepTwoScreen extends StatefulWidget {
 
 class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
   String level = "";
-  List levels = ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2", "6EME", "5EME",
-                 "4EME", "3EME", "2NDE", "1ERE", "TLE", "CAFOP", "ENA",
-                 "INFAS", "POLICE", "GENDARMERIE", "INFPA"];
+  List levels = [];
+
+  Future getSubjects() async {
+    List subjects = await UserOnlineRequests().getSubjects();
+    setState(() {
+      for(Map subject in subjects){
+        levels.add(subject["subjectName"]);
+      }
+    });
+  }
 
   @override
   initState() {
     super.initState();
+    getSubjects();
   }
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery. of(context).size.width;
-    double containerWidth = (width/2)-15;
+    double containerWidth = (width/2)-18;
 
     return Scaffold(
+        backgroundColor: Colors.white,
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 30),
+            IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xff0b65c2)
+                )
+            ),
             Expanded(
                 child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(15),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Text(
                               'Etape 2',
                               style: GoogleFonts.quicksand(
                                   textStyle: const TextStyle(
                                       fontSize: 30,
-                                      color: Colors.blue,
+                                      color: Color(0xff0b65c2),
                                       fontWeight: FontWeight.bold
                                   )
                               )
@@ -56,10 +77,11 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
                               )
                           ),
                           const SizedBox(height: 20),
-                          Wrap(
-                              spacing: 5,
-                              children: levels.map(
-                                      (e) => GestureDetector(
+                          Center(
+                            child: Wrap(
+                                spacing: 5,
+                                children: levels.map(
+                                        (e) => GestureDetector(
                                         onTap: (){
                                           setState(() {
                                             level = e.toLowerCase();
@@ -94,8 +116,9 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
                                                 )
                                             )
                                         )
-                                      )
-                              ).toList()
+                                    )
+                                ).toList()
+                            )
                           )
                         ]
                     )
@@ -104,11 +127,11 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
             Padding(
                 padding: const EdgeInsets.all(15),
                 child: SizedBox(
-                    height: 50,
+                    height: 56,
                     width: double.infinity,
                     child: TextButton(
                         style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                            backgroundColor: MaterialStateProperty.all<Color>(const Color(0xff0b65c2)),
                             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),

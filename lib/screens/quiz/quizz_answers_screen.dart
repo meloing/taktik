@@ -26,10 +26,10 @@ class QuizzAnswersScreen extends StatefulWidget {
   final int questionsResponses;
 
   @override
-  _QuizzAnswersScreenState createState() => _QuizzAnswersScreenState();
+  QuizzAnswersScreenState createState() => QuizzAnswersScreenState();
 }
 
-class _QuizzAnswersScreenState extends State<QuizzAnswersScreen> {
+class QuizzAnswersScreenState extends State<QuizzAnswersScreen> {
 
   int add = 0;
   var rang = 0;
@@ -56,9 +56,9 @@ class _QuizzAnswersScreenState extends State<QuizzAnswersScreen> {
                         item.value.split(";")[0][0].toUpperCase(),
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                          fontWeight: FontWeight.bold
+                        )
+                      )
                     ),
                     subtitle: Text(
                       item.value.split(";")[1],

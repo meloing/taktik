@@ -1,9 +1,15 @@
-import '../../services/api.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
+import '../../services/utilities.dart';
 import '../article/article_screen.dart';
+import '../../services/articles_api.dart';
+import '../method/point_method_screen.dart';
+import '../../services/point_method_api.dart';
+import 'package:social_share/social_share.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../article/specific_article_screen.dart';
+import '../method/specific_point_method_screen.dart';
+import 'package:totale_reussite/screens/other/premium_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,129 +19,455 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  List articles = [
+  List articles = [];
+  List pointsMethods = [];
+  bool launchGetClubs = true;
+  List clubs = [
     {
-      "title": "Comment reussir son examen",
-      "description": "Une description ici"
+      "name": "Maths",
+      "icon": "maths.png"
     },
     {
-      "title": "Comment reussir son année scolaire",
-      "description": "Une description de l'article dans cette partie"
-    }
-    ];
-  List pointsMethods = [
-    {
-      "date": "2022-11-16 00:49:35",
-      "title": "Droites perpendiculaires",
-      "description": "Comment demontrer que deux droites sont perpendiculaires"
+      "name": "Svt",
+      "icon": "svt.png"
     },
     {
-      "date": "2022-11-16 00:49:35",
-      "title": "Droites parallèles",
-      "description": "Comment montrer que deux droites sont parallèles"
+      "name": "Tic",
+      "icon": "tic.png"
     },
     {
-      "date": "2022-11-16 00:49:35",
-      "title": "Equilibrer une équation",
-      "description": "Dans ce point méthode on vous montre comment créé un graphique."
+      "name": "Anglais",
+      "icon": "ang.png"
     },
     {
-      "date": "2022-11-16 00:49:35",
-      "title": "Créer un graphique",
-      "description": "Dans ce point méthode on vous montre comment créé un graphique."
+      "name": "Philosophie",
+      "icon": "philo.png"
     },
     {
-      "date": "2022-11-16 00:49:35",
-      "title": "Développement et réduction",
-      "description": "Dans ce point méthode on vous montre comment créé un graphique."
+      "name": "Physique Chimie",
+      "icon": "pc.png"
     }
   ];
-  bool launchGetClubs = true;
+
+  void modal(){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return Dialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12))
+              ),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(10),
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)
+                  ),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                            constraints: BoxConstraints.loose(const Size.fromHeight(60)),
+                            child: Stack(
+                                alignment: Alignment.topCenter,
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                      top: -50,
+                                      child: Image.asset(
+                                          "assets/images/new.png",
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.fill
+                                      )
+                                  )
+                                ]
+                            )
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                                "Les clubs seront disponibles dans la version à venir. Revenez régulièrement pour ne pas rater. Les clubs vous permettront de poser des questions et d'échanger avec les autres membres.",
+                                textAlign: TextAlign.justify,
+                                style: GoogleFonts.rubik(
+                                    textStyle: const TextStyle(
+                                        fontSize: 16
+                                    )
+                                )
+                            )
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: SizedBox(
+                                height: 56,
+                                width: double.infinity,
+                                child: TextButton(
+                                    style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            )
+                                        )
+                                    ),
+                                    onPressed: (){
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                        "Fermer",
+                                        style: GoogleFonts.rubik(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                      ]
+                  )
+              )
+          );
+        });
+  }
 
   String returnDay(String date){
     DateTime newDate = DateTime.parse(date);
-    List weekdayName = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    List weekdayName = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
     return weekdayName[newDate.weekday-1];
   }
 
-  Future addOrUpdateClub(List values) async{
-    // add or update course in local database
+  Future getArticles() async{
+    List values = await ArticlesOfflineRequests().getArticles(0, 3);
+    setState(() {
+      articles.addAll(values);
+    });
+  }
 
-    for(Map value in values){
-      List club = await LocalDatabase().getClubById(value["clubId"]);
-      if(club.isEmpty){
-        await LocalDatabase().addClub(
-            value["clubId"],
-            value["clubName"],
-            value["clubDescription"],
-            value["clubIcon"],
-            value["clubDate"]
-        );
-      }
-      else{
-        await LocalDatabase().updateClub(
-            value["clubId"],
-            value["clubName"],
-            value["clubDescription"],
-            value["clubIcon"],
-            value["clubDate"]
-        );
-      }
-    }
+  Future getPointMethods() async{
+    List values = await PointMethodOfflineRequests().getPointMethods(0, 3);
+    setState(() {
+      pointsMethods.addAll(values);
+    });
+  }
+
+  Future synchronizeOnlineOfflineArticles() async{
+    List updateArticles = await ArticlesOfflineRequests().synchronizeOnlineOffline();
+    setState(() {
+      articles.insertAll(0, updateArticles);
+    });
+  }
+
+  Future synchronizeOnlineOfflinePointMethod() async{
+    await PointMethodOfflineRequests().synchronizeOnlineOffline();
   }
 
   @override
   initState() {
     super.initState();
+    getArticles();
+    getPointMethods();
+    synchronizeOnlineOfflineArticles();
+    synchronizeOnlineOfflinePointMethod();
   }
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double itemWidth = (width/3)-3.5;
+
     return Scaffold(
-        backgroundColor: const Color(0xfff2f2f2),
+        backgroundColor: const Color(0xffebe6e0),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(10),
           child: Column(
              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(
-                    "Nos Articles",
-                    style: GoogleFonts.quicksand(
-                        textStyle: const TextStyle(
-                            fontSize: 16,
-                            color: Color(0xff0e1b42),
-                            fontWeight: FontWeight.bold
-                        )
+                Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                        children: [
+                          Expanded(
+                              child: Text(
+                                  "Points méthodes",
+                                  style: GoogleFonts.rubik(
+                                      textStyle: const TextStyle(
+                                          fontSize: 17,
+                                          color: Color(0xff0e1b42),
+                                          fontWeight: FontWeight.w500
+                                      )
+                                  )
+                              )
+                          ),
+                          GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const PointMethodScreen()
+                                    )
+                                );
+                              },
+                              child: Row(
+                                  children: [
+                                    Text(
+                                        "Tout voir",
+                                        style: GoogleFonts.rubik(
+                                            fontSize: 12,
+                                            color: const Color(0xff6F7FAF)
+                                        )
+                                    ),
+                                    const Icon(
+                                        Icons.arrow_drop_down_rounded,
+                                        color: Color(0xffB0BAD7)
+                                    )
+                                  ]
+                              )
+                          )
+                        ]
                     )
                 ),
-                const SizedBox(height: 5),
+                pointsMethods.isEmpty ?
+                Container(
+                  color: Colors.white,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    enabled: true,
+                    child: Column(
+                      children: List<Widget>.generate(
+                          3,
+                          (int index) => ListTile(
+                              leading: Container(
+                                width: 37,
+                                height: 40,
+                                color: Colors.white,
+                              ),
+                              title: Container(
+                                width: double.infinity,
+                                height: 10,
+                                color: Colors.white,
+                              ),
+                              subtitle: Container(
+                                width: double.infinity,
+                                height: 10,
+                                color: Colors.white,
+                              ),
+                              trailing: const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 16
+                              )
+                          )
+                      ).toList()
+                    )
+                  )
+                ) :
+                Column(
+                    children: pointsMethods.map(
+                            (e) => Container(
+                            decoration: const BoxDecoration(color: Colors.white),
+                            child: ListTile(
+                                onTap: (){
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SpecificPointMethodScreen(
+                                              method: e
+                                          )
+                                      )
+                                  );
+                                },
+                                leading: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                          returnDay(e["date"].split(" ")[0]),
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 12,
+                                              color: const Color(0xff6F7FAF)
+                                          )
+                                      ),
+                                      Text(
+                                          e["date"].split(" ")[0].split("-")[2],
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.rubik(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xff0E1B42)
+                                          )
+                                      )
+                                    ]
+                                ),
+                                title: Text(
+                                    e["title"],
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.quicksand(
+                                        fontWeight: FontWeight.bold
+                                    )
+                                ),
+                                subtitle: Text(
+                                    e["subtitle"],
+                                    textAlign: TextAlign.justify,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.quicksand()
+                                ),
+                                trailing: const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 16
+                                )
+                            )
+                        )
+                    ).toList()
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                      children: [
+                        Expanded(
+                            child: Text(
+                                "Nos articles",
+                                style: GoogleFonts.rubik(
+                                    textStyle: const TextStyle(
+                                        fontSize: 17,
+                                        color: Color(0xff0e1b42),
+                                        fontWeight: FontWeight.w500
+                                    )
+                                )
+                            )
+                        ),
+                        GestureDetector(
+                            onTap: (){
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const ArticleScreen()
+                                  )
+                              );
+                            },
+                            child: Row(
+                                children: [
+                                  Text(
+                                      "Tout voir",
+                                      style: GoogleFonts.rubik(
+                                          fontSize: 12,
+                                          color: const Color(0xff6F7FAF)
+                                      )
+                                  ),
+                                  const Icon(
+                                      Icons.arrow_drop_down_rounded,
+                                      color: Color(0xffB0BAD7)
+                                  )
+                                ]
+                            )
+                        )
+                      ]
+                  )
+                ),
+                articles.isEmpty ?
                 Container(
                     height: 150,
-                    color: const Color(0xfff2f2f2),
+                    color: Colors.white,
+                    child: Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        enabled: true,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (_, __) => Container(
+                              width: 300,
+                              padding: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(right: 5),
+                              decoration: const BoxDecoration(
+                                  border: Border(
+                                      right: BorderSide(
+                                        color: Color(0xffebe6e0),
+                                        width: 5,
+                                      )
+                                  )
+                              ),
+                              child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                        width: 90,
+                                        height: 119,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                        )
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              const SizedBox(height: 3),
+                                              Container(
+                                                width: double.infinity,
+                                                height: 8.0,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(height: 5),
+                                              SizedBox(
+                                                  height: 40,
+                                                  child: Container(
+                                                    width: double.infinity,
+                                                    height: 8.0,
+                                                    color: Colors.white,
+                                                  )
+                                              ),
+                                              const SizedBox(height: 60),
+                                              Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: Container(
+                                                      width: 70.0,
+                                                      height: 8.0,
+                                                      color: Colors.white
+                                                  )
+                                              )
+                                            ]
+                                        )
+                                    )
+                                  ]
+                              )
+                          ),
+                          itemCount: 3
+                        )
+                    )
+                ):
+                Container(
+                    height: 141,
+                    color: const Color(0xffebe6e0),
                     child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: articles.map(
                                 (e) => Container(
                                 width: 300,
-                                padding: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(5),
                                 margin: const EdgeInsets.only(right: 5),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10)
-                                ),
+                                decoration: const BoxDecoration(color: Colors.white),
                                 child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       SizedBox(
-                                          height: 119,
                                           width: 90,
+                                          height: 119,
                                           child: Padding(
                                             padding: const EdgeInsets.only(top: 6),
                                             child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(10),
                                                 child: Image.network(
-                                                    'https://app.huch.tech/pictures/',
+                                                    'https://archetechnology.com/public/assets/img/infographie.png',
                                                     height: 119,
                                                     width: 100,
                                                     fit: BoxFit.fill
@@ -151,6 +483,7 @@ class HomeScreenState extends State<HomeScreen> {
                                                 const SizedBox(height: 3),
                                                 Text(
                                                     e["title"],
+                                                    overflow: TextOverflow.ellipsis,
                                                     style: GoogleFonts.rubik(
                                                         textStyle: const TextStyle(
                                                             fontSize: 14,
@@ -161,10 +494,9 @@ class HomeScreenState extends State<HomeScreen> {
                                                 ),
                                                 const SizedBox(height: 5),
                                                 SizedBox(
-                                                    height: 40,
+                                                    height: 58,
                                                     child: Text(
                                                         e["description"],
-                                                        // textAlign: TextAlign.justify,
                                                         style: GoogleFonts.rubik(
                                                             textStyle: const TextStyle(
                                                                 fontSize: 16,
@@ -180,7 +512,9 @@ class HomeScreenState extends State<HomeScreen> {
                                                           Navigator.push(
                                                               context,
                                                               MaterialPageRoute(
-                                                                  builder: (context) => const SpecificArticleScreen()
+                                                                  builder: (context) => SpecificArticleScreen(
+                                                                    article: e
+                                                                  )
                                                               )
                                                           );
                                                         },
@@ -205,6 +539,7 @@ class HomeScreenState extends State<HomeScreen> {
                         ).toList()
                     )
                 ),
+
                 const SizedBox(height: 15),
                 Container(
                     height: 138,
@@ -223,10 +558,6 @@ class HomeScreenState extends State<HomeScreen> {
                             end: FractionalOffset(0.5, 1),
                             stops: [0.0, 1.0],
                             tileMode: TileMode.clamp
-                        ),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)
                         )
                     ),
                     child: Center(
@@ -244,36 +575,31 @@ class HomeScreenState extends State<HomeScreen> {
                 Container(
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10)
-                        )
+                        color: Colors.white
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 20
-                    ),
+                    padding: const EdgeInsets.all(10),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              "Share and invite your friends!",
+                              "Partagez et invitez vos amis !",
                               style: GoogleFonts.rubik(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold
                               )
                           ),
                           const SizedBox(height: 5),
-                          Text("Invite friends to register on our app. For every user you invite, "
-                              "you can earn up 5HPS and 2HPS for your referred.",
+                          Text("Invitez des amis à s'inscrire sur notre application. "
+                              "Pour chaque utilisateur que vous invitez, vous débloquez des "
+                              "cours gratuitement.",
+                              textAlign: TextAlign.justify,
                               style: GoogleFonts.rubik(
                                   fontSize: 14
                               )
                           ),
                           const SizedBox(height: 5),
                           SizedBox(
-                              width: 110,
+                              width: 170,
                               child: TextButton(
                                   style: ButtonStyle(
                                       backgroundColor: MaterialStateProperty.all<Color>(const Color(0xff178DC9)),
@@ -284,10 +610,13 @@ class HomeScreenState extends State<HomeScreen> {
                                       )
                                   ),
                                   onPressed: ()async{
-
+                                    String linkMessage = await Utilities().createDynamicLink();
+                                    String text = "Télécharge  l'application TakTik en cliquant sur ce lien: "
+                                        "$linkMessage";
+                                    SocialShare.shareOptions(text).then((data) {});
                                   },
                                   child: Text(
-                                      "Invite Now",
+                                      "Inviter maintenant",
                                       style: GoogleFonts.rubik(
                                           textStyle: const TextStyle(
                                               fontSize: 15,
@@ -301,82 +630,89 @@ class HomeScreenState extends State<HomeScreen> {
                         ]
                     )
                 ),
-                const SizedBox(height: 15),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                          "Points méthodes",
-                          style: GoogleFonts.quicksand(
-                              textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xff0e1b42),
-                                  fontWeight: FontWeight.w500
+
+                Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                        children: [
+                          Expanded(
+                              child: Text(
+                                  "Nos Clubs",
+                                  style: GoogleFonts.rubik(
+                                      textStyle: const TextStyle(
+                                          fontSize: 17,
+                                          color: Color(0xff0e1b42),
+                                          fontWeight: FontWeight.w500
+                                      )
+                                  )
                               )
                           )
-                      ),
-                      TextButton(
-                          onPressed: (){
-
-                          },
-                          child: const Text("Tout voir")
+                        ]
+                    )
+                ),
+                GestureDetector(
+                  onTap: modal,
+                  child: Container(
+                      color: const Color(0xffebe6e0),
+                      child: Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: clubs.map(
+                                  (e) => Container(
+                                  width: itemWidth,
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.white
+                                  ),
+                                  child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                            height: 60,
+                                            width: 60,
+                                            child: Padding(
+                                                padding: const EdgeInsets.only(top: 6),
+                                                child: Image.asset(
+                                                    'assets/images/${e["icon"]}',
+                                                    height: 60,
+                                                    width: 60,
+                                                    fit: BoxFit.fill
+                                                )
+                                            )
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                            e["name"],
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.quicksand(
+                                                textStyle: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Color(0xff6f7faf),
+                                                    fontWeight: FontWeight.bold
+                                                )
+                                            )
+                                        )
+                                      ]
+                                  )
+                              )
+                          ).toList()
                       )
-                    ]
+                  )
                 ),
-                Column(
-                    children: pointsMethods.map(
-                            (e) => Container(
-                                margin: const EdgeInsets.only(bottom: 7),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10)
-                                ),
-                                child: ListTile(
-                                    leading: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                              returnDay(e["date"].split(" ")[0]),
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.rubik(
-                                                  fontSize: 12,
-                                                  color: const Color(0xff6F7FAF)
-                                              )
-                                          ),
-                                          Text(
-                                              e["date"].split(" ")[0].split("-")[2],
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.rubik(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: const Color(0xff0E1B42)
-                                              )
-                                          )
-                                        ]
-                                    ),
-                                    title: Text(
-                                        e["title"],
-                                        overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.quicksand(
-                                          fontWeight: FontWeight.bold
-                                      )
-                                    ),
-                                    subtitle: Text(
-                                      e["description"],
-                                      textAlign: TextAlign.justify,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.quicksand(),
-                                    ),
-                                    trailing: const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 16,
-                                    )
-                                )
-                            )
-                    ).toList()
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                      onPressed: modal,
+                      child: Text(
+                          "Tout voir",
+                          style: GoogleFonts.rubik(
+                              fontSize: 12,
+                              color: const Color(0xff6F7FAF)
+                          )
+                      )
+                  )
                 ),
-                const SizedBox(height: 15),
                 Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -392,10 +728,6 @@ class HomeScreenState extends State<HomeScreen> {
                             end: FractionalOffset(0.5, 1),
                             stops: [0.0, 1.0],
                             tileMode: TileMode.clamp
-                        ),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)
                         )
                     ),
                     child: Row(
@@ -432,8 +764,13 @@ class HomeScreenState extends State<HomeScreen> {
                                           )
                                       )
                                   ),
-                                  onPressed: ()async{
-
+                                  onPressed: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const PremiumScreen()
+                                        )
+                                    );
                                   },
                                   child: Text(
                                       "S'abonner",
@@ -450,6 +787,7 @@ class HomeScreenState extends State<HomeScreen> {
                         ]
                     )
                 ),
+                const SizedBox(height: 15)
               ]
           )
         )

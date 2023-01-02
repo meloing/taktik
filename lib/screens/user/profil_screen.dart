@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../services/local_data.dart';
 import 'package:social_share/social_share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:totale_reussite/screens/user/login_screen.dart';
 import 'package:totale_reussite/screens/other/premium_screen.dart';
 import 'package:totale_reussite/screens/user/user_informations_screen.dart';
+
+import '../product/buy_product_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -49,13 +52,22 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          title: const Text("PROFIL"),
+            iconTheme: const IconThemeData(
+                color: Color(0xff0b65c2)
+            ),
+            elevation: 0,
+            centerTitle: true,
+            title: Text(
+              "PROFIL",
+              style: GoogleFonts.quicksand(
+                  color: const Color(0xff0b65c2),
+                  fontWeight: FontWeight.bold
+              )
+            )
         ),
+        backgroundColor: const Color(0xffebe6e0),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -64,8 +76,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: Colors.grey[200]!)
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)
                     ),
                     child: Column(
                         children: [
@@ -99,46 +111,272 @@ class ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 SizedBox(
                   height: 50,
-                  child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: BorderSide(color: Colors.grey[200]!),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5)
+                      ),
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                                )
+                            )
+                        ),
+                        onPressed: () async{
+                          if(!mounted) return;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const CompetitionScreen()
+                              )
+                          );
+                        },
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                  Icons.add_card_rounded,
+                                  color: Colors.green
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                  "Concours",
+                                  style: GoogleFonts.rubik(
+                                      color: const Color(0xff0b65c2)
+                                  )
+                              ),
+                              const Expanded(
+                                  child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(Icons.arrow_forward_ios_rounded)
+                                  )
+                              )
+                            ]
+                        )
+                    )
+                  )
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                    height: 50,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)
+                        ),
+                        child: TextButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)
+                                    )
+                                )
+                            ),
+                            onPressed: (){
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => const BuyProductScreen()
+                                  )
+                              );
+                            },
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                      Icons.file_copy_rounded,
+                                      color: Colors.purple
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                      "Vos documents",
+                                      style: GoogleFonts.rubik(
+                                          color: const Color(0xff0b65c2)
+                                      )
+                                  ),
+                                  const Expanded(
+                                      child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_forward_ios_rounded)
+                                      )
+                                  )
+                                ]
+                            )
+                        )
+                    )
+                ),
+                const SizedBox(height: 10),
+                Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              child: TextButton(
+                                  style: ButtonStyle(
+                                      padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+                                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5)
+                                          )
+                                      )
+                                  ),
+                                  onPressed: (){
+                                    String text = "Je t'invite à découvrir l'application Totale Reussite!"
+                                        "Disponible au lien suivant: \n\n"
+                                        "https://play.google.com/store/apps/details?id=com.archetechnology.totale_reussite";
+                                    SocialShare.shareOptions(text).then((data) {});
+                                  },
+                                  child: Column(
+                                      children: [
+                                        const Icon(
+                                            Icons.send_rounded,
+                                            size: 30,
+                                            color: Colors.blue
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            "Partager l'APP",
+                                            style: GoogleFonts.rubik(
+                                                color: const Color(0xff0b65c2)
+                                            )
+                                        )
+                                      ]
+                                  )
                               )
                           )
                       ),
-                      onPressed: () async{
-                        if(!mounted) return;
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CompetitionScreen()
-                            )
-                        );
-                      },
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                                Icons.add_card_rounded,
-                                color: Colors.green
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              "Concours",
-                              style: GoogleFonts.rubik(),
-                            ),
-                            const Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Icon(Icons.arrow_forward_ios_rounded),
-                                )
-                            )
-                          ]
+                      const SizedBox(width: 5),
+                      Expanded(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              child: TextButton(
+                                  style: ButtonStyle(
+                                      padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+                                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5)
+                                          )
+                                      )
+                                  ),
+                                  onPressed: ()async{
+                                    var url = Uri.parse("https://play.google.com/store/apps/details?id=com.archetechnology.totale_reussite");
+                                    if (!await launchUrl(url)) throw '';
+                                  },
+                                  child: Column(
+                                      children: [
+                                        const Icon(
+                                            Icons.star_rounded,
+                                            size: 30,
+                                            color: Colors.yellow
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            "Noter l'app",
+                                            style: GoogleFonts.rubik(
+                                                color: const Color(0xff0b65c2)
+                                            )
+                                        )
+                                      ]
+                                  )
+                              )
+                          )
                       )
-                  )
+                    ]
+                ),
+                const SizedBox(height: 10),
+                Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              child: TextButton(
+                                  style: ButtonStyle(
+                                      padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+                                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5)
+                                          )
+                                      )
+                                  ),
+                                  onPressed: ()async{
+                                    var url = Uri.parse("whatsapp://send?phone=+2250709263037");
+                                    if (!await launchUrl(url)) throw '';
+                                  },
+                                  child: Column(
+                                      children: [
+                                        const Icon(
+                                            Icons.call_rounded,
+                                            size: 30,
+                                            color: Colors.red
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            "Nous contacter",
+                                            style: GoogleFonts.rubik(
+                                                color: const Color(0xff0b65c2)
+                                            )
+                                        )
+                                      ]
+                                  )
+                              )
+                          )
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              child: TextButton(
+                                  style: ButtonStyle(
+                                      padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
+                                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5)
+                                          )
+                                      )
+                                  ),
+                                  onPressed: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const PremiumScreen()
+                                        )
+                                    );
+                                  },
+                                  child: Column(
+                                      children: [
+                                        const Icon(
+                                            Icons.workspace_premium_rounded,
+                                            size: 30,
+                                            color: Colors.green
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            "Devenir premium",
+                                            style: GoogleFonts.rubik(
+                                                color: const Color(0xff0b65c2)
+                                            )
+                                        )
+                                      ]
+                                  )
+                              )
+                          )
+                      )
+                    ]
                 ),
                 const SizedBox(height: 10),
                 Container(
@@ -148,8 +386,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                         bottom: 10
                     ),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: Colors.grey[200]!)
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,13 +407,14 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const UserInformationsScreen()
+                                          builder: (context) => const UserInformationScreen()
                                       )
                                   );
                                 },
                                 child: Text(
                                     "Tout voir",
                                     style: GoogleFonts.rubik(
+                                        color: const Color(0xff0b65c2),
                                         fontWeight: FontWeight.bold
                                     )
                                 )
@@ -216,10 +455,24 @@ class ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         TextField(
                             enabled: false,
-                            controller: TextEditingController(text: country),
+                            controller: TextEditingController(text: lastName),
                             decoration: InputDecoration(
-                                labelText: "Pays",
-                                contentPadding: const EdgeInsets.all(5),
+                                labelText: "Prénoms",
+                                border: const OutlineInputBorder(),
+                                labelStyle: GoogleFonts.rubik(
+                                    textStyle: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey
+                                    )
+                                )
+                            )
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                            enabled: false,
+                            controller: TextEditingController(text: number),
+                            decoration: InputDecoration(
+                                labelText: "Numéro",
                                 border: const OutlineInputBorder(),
                                 labelStyle: GoogleFonts.rubik(
                                     textStyle: const TextStyle(
@@ -244,190 +497,32 @@ class ProfileScreenState extends State<ProfileScreen> {
                                     )
                                 )
                             )
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                            enabled: false,
-                            controller: TextEditingController(text: gender),
-                            decoration: InputDecoration(
-                                labelText: "Genre",
-                                contentPadding: const EdgeInsets.all(5),
-                                border: const OutlineInputBorder(),
-                                labelStyle: GoogleFonts.rubik(
-                                    textStyle: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey
-                                    )
-                                )
-                            )
                         )
                       ]
                   )
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                        child: TextButton(
-                            style: ButtonStyle(
-                                padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: BorderSide(color: Colors.grey[200]!),
-                                    )
-                                )
-                            ),
-                            onPressed: (){
-                              String text = "Je t'invite à découvrir l'application Totale Reussite!"
-                                  "Disponible au lien suivant: \n\n"
-                                  "https://play.google.com/store/apps/details?id=com.archetechnology.totale_reussite";
-                              SocialShare.shareOptions(text).then((data) {});
-                            },
-                            child: Column(
-                                children: [
-                                  const Icon(
-                                      Icons.send_rounded,
-                                      size: 30,
-                                      color: Colors.blue
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                      "Partager l'APP",
-                                      style: GoogleFonts.rubik(
-                                          color: Colors.black
-                                      )
-                                  )
-                                ]
-                            )
-                        )
+                Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)
                     ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                        child: TextButton(
-                            style: ButtonStyle(
-                                padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: BorderSide(color: Colors.grey[200]!),
-                                    )
-                                )
-                            ),
-                            onPressed: ()async{
-                              var url = Uri.parse("https://play.google.com/store/apps/details?id=com.archetechnology.totale_reussite");
-                              if (!await launchUrl(url)) throw '';
-                            },
-                            child: Column(
-                                children: [
-                                  const Icon(
-                                      Icons.star_rounded,
-                                      size: 30,
-                                      color: Colors.yellow
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                      "Noter l'app",
-                                      style: GoogleFonts.rubik(
-                                          color: Colors.black
-                                      )
-                                  )
-                                ]
-                            )
-                        )
-                    )
-                  ]
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                        child: TextButton(
-                            style: ButtonStyle(
-                                padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: BorderSide(color: Colors.grey[200]!),
-                                    )
-                                )
-                            ),
-                            onPressed: ()async{
-                              var url = Uri.parse("whatsapp://send?phone=+2250709263037");
-                              if (!await launchUrl(url)) throw '';
-                            },
-                            child: Column(
-                                children: [
-                                  const Icon(
-                                      Icons.call_rounded,
-                                      size: 30,
-                                      color: Colors.red
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                      "Nous contacter",
-                                      style: GoogleFonts.rubik(
-                                        color: Colors.black
-                                      )
-                                  )
-                                ]
-                            )
-                        )
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                        child: TextButton(
-                            style: ButtonStyle(
-                                padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(10)),
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: BorderSide(color: Colors.grey[200]!),
-                                    )
-                                )
-                            ),
-                            onPressed: (){
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const PremiumScreen()
-                                  )
-                              );
-                            },
-                            child: Column(
-                                children: [
-                                  const Icon(
-                                      Icons.workspace_premium_rounded,
-                                      size: 30,
-                                      color: Colors.green
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                      "Devenir premium",
-                                      style: GoogleFonts.rubik(
-                                          color: Colors.black
-                                      )
-                                  )
-                                ]
-                            )
-                        )
-                    )
-                  ]
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 50,
-                  child: TextButton(
+                    child: TextButton(
                       style: ButtonStyle(
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: BorderSide(color: Colors.grey[200]!),
+                                borderRadius: BorderRadius.circular(5)
                               )
                           )
                       ),
                       onPressed: () async{
+                        if (await GoogleSignIn().isSignedIn()) {
+                          await GoogleSignIn().disconnect().catchError((e, stack) {});
+                        }
                         await FirebaseAuth.instance.signOut();
+                        LocalData().setNumber("");
+
                         if(!mounted) return;
                         Navigator.pushReplacement(
                             context,
@@ -448,7 +543,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(width: 5),
                             Text(
                               "Deconnexion",
-                              style: GoogleFonts.rubik(),
+                              style: GoogleFonts.rubik(
+                                color: const Color(0xff0b65c2)
+                              )
                             ),
                             const Expanded(
                                 child: Align(

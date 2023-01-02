@@ -1,5 +1,5 @@
-import '../../services/api.dart';
 import 'package:flutter/material.dart';
+import '../../services/competition_api.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
@@ -14,351 +14,296 @@ class CompetitionScreen extends StatefulWidget {
 }
 
 class CompetitionScreenState extends State<CompetitionScreen> {
+  int offset = 0;
+  bool seeMore = false;
   List competition = [];
+  List updateCompetition = [];
   bool launchGetCompetition = true;
+  bool launchSynchronizeOnlineOffline = true;
+  final ScrollController _controller = ScrollController();
   TextEditingController searchController = TextEditingController();
 
-  Future addOrUpdateCompetition(List values) async{
-    // add or update course in local database
-
-    for(Map value in values){
-      List competition = await LocalDatabase().getCompetitionById(value["competitionId"]);
-      if(competition.isEmpty){
-        await LocalDatabase().addCompetition(
-            value["competitionId"],
-            value["competitionContacts"],
-            value["competitionCountry"],
-            value["competitionDate"],
-            value["competitionDescription"],
-            value["competitionLink"],
-            value["competitionName"],
-            value["competitionPicture"]
-        );
-      }
-      else{
-        await LocalDatabase().updateCompetition(
-            value["competitionId"],
-            value["competitionContacts"],
-            value["competitionCountry"],
-            value["competitionDate"],
-            value["competitionDescription"],
-            value["competitionLink"],
-            value["competitionName"],
-            value["competitionPicture"]
-        );
-      }
-    }
-  }
-
   Future getCompetition() async{
-    late List values;
-    String lastDate = "";
     String text = searchController.text;
-
-    // Récupération de la dernière date de cours
-    List val = await LocalDatabase().getLastCompetitionDate();
-    if(val.isNotEmpty){
-      lastDate = val[0]["competitionDate"];
-    }
-
-    values = await LocalDatabase().getCompetition(text);
-    if(values.isEmpty){
-      values = await ManageDatabase().getCompetition(lastDate);
-      await addOrUpdateCompetition(values);
-    }
+    List values = await CompetitionOfflineRequests().getCompetition(text, offset);
 
     setState(() {
+      if(offset == 0){
+        competition.clear();
+      }
+
+      if(values.length == 20){
+        seeMore = true;
+      }
+      else{
+        seeMore = false;
+      }
+
       competition.addAll(values);
       launchGetCompetition = false;
     });
 
-    // Mise à jour des competitions
-    values = await ManageDatabase().getCompetition(lastDate);
-    await addOrUpdateCompetition(values);
+  }
+
+  Future synchronizeOnlineOffline() async{
+    updateCompetition = await CompetitionOfflineRequests().synchronizeOnlineOffline();
+    setState(() {
+      launchSynchronizeOnlineOffline = false;
+    });
   }
 
   @override
   initState() {
     super.initState();
     getCompetition();
+    synchronizeOnlineOffline();
+    _controller.addListener(() {
+      if(_controller.position.pixels == _controller.position.maxScrollExtent){
+        if(seeMore){
+          offset += 20;
+          getCompetition();
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
+            elevation: 0,
+            centerTitle: true,
+            iconTheme: const IconThemeData(
+                color: Color(0xff0b65c2)
+            ),
+            title: Text(
               "Concours",
               style: GoogleFonts.quicksand(
-                fontWeight: FontWeight.bold
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Color(0xff0b65c2)
+                  )
               )
           )
         ),
-        body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: const OutlineInputBorder(),
-                          labelText: "Recherche un produit",
-                          labelStyle: GoogleFonts.rubik(
-                              fontSize: 13
-                          )
-                      ),
-                      onChanged: (value){
-                        setState(() {
-                          competition.clear();
-                          launchGetCompetition = true;
-                        });
-                        getCompetition();
-                      }
-                  )
-              ),
-              Expanded(
-                  child:
-                  launchGetCompetition ?
-                  const Center(
-                      child: CircularProgressIndicator()
-                  ):
-                  competition.isEmpty ?
-                  Center(
-                      child: Text(
-                          "Aucun concours trouvé",
-                          style: GoogleFonts.rubik(
-                              textStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold
-                              )
-                          )
-                      )
-                  ):
-                  ListView.separated(
-                      itemCount: competition.length,
-                      itemBuilder: (BuildContext context,int index){
-                        String text = "";
-                        return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: const BoxDecoration(
-                                color: Colors.white
+        backgroundColor: const Color(0xffebe6e0),
+        body: SingleChildScrollView(
+            controller: _controller,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                    padding: const EdgeInsets.all(7),
+                    child: SizedBox(
+                        height: 45,
+                        child: TextField(
+                            controller: searchController,
+                            decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.search_rounded),
+                                border: const OutlineInputBorder(),
+                                labelText: "Recherche un produit",
+                                labelStyle: GoogleFonts.rubik(
+                                    fontSize: 13
+                                )
                             ),
-                            child: Column(
-                                children: [
-                                  Row(
+                            onChanged: (value){
+                              setState(() {
+                                competition.clear();
+                                launchGetCompetition = true;
+                              });
+                              getCompetition();
+                            }
+                        )
+                    )
+                ),
+                launchGetCompetition ?
+                const Center(
+                    child: CircularProgressIndicator()
+                ):
+                competition.isEmpty ?
+                Center(
+                    child: Text(
+                        "Aucun concours trouvé",
+                        style: GoogleFonts.rubik(
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.bold
+                            )
+                        )
+                    )
+                ):
+                Column(
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          child: launchSynchronizeOnlineOffline ?
+                          Row(
+                              children: [
+                                const Icon(
+                                    Icons.cloud_rounded,
+                                    size: 40
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                    child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: const [
+                                          Text("Syncronisation en cours"),
+                                          SizedBox(height: 10),
+                                          LinearProgressIndicator(
+                                            color: Color(0xff0b65c2),
+                                          )
+                                        ]
+                                    )
+                                )
+                              ]
+                          ) :
+                          Visibility(
+                              visible: updateCompetition.isNotEmpty,
+                              child: GestureDetector(
+                                  onTap: (){
+                                     setState(() {
+                                       updateCompetition.clear();
+                                     });
+                                    getCompetition();
+                                  },
+                                  child: Row(
                                       children: [
-                                        Expanded(
-                                            child: text == "" ? Text(
-                                                competition[index]["competitionName"].toUpperCase(),
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 18,
-                                                )
-                                            ):
-                                            ParsedText(
-                                                text: competition[index]["competitionName"].toUpperCase(),
-                                                overflow: TextOverflow.ellipsis,
-                                                style:  const TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold
-                                                ),
-                                                parse: <MatchText>[
-                                                  MatchText(
-                                                      pattern: r""+text.toUpperCase(),
-                                                      style: const TextStyle(
-                                                        color: Colors.blue
-                                                      )
-                                                  )
-                                                ]
-                                            )
-                                        )
-                                      ]
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                      children: [
-                                        ClipRRect(
-                                            borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                                            child: SizedBox(
-                                                width: 100,
-                                                height: 140,
-                                                child: CachedNetworkImage(
-                                                    imageUrl: "https://www.archetechnology.com/totale-reussite/ressources/${competition[index]["competitionPicture"]}",
-                                                    placeholder: (context, url) => const Center(
-                                                        child: SizedBox(
-                                                            width: 30,
-                                                            height: 30,
-                                                            child: CircularProgressIndicator()
-                                                        )
-                                                    ),
-                                                    errorWidget: (context, url, error) => const Padding(
-                                                        padding: EdgeInsets.all(35),
-                                                        child: Icon(Icons.error)
-                                                    )
-                                                )
-                                            )
-                                        ),
-                                        const SizedBox(width: 15),
                                         Expanded(
                                             child: Column(
+                                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  const SizedBox(height: 5),
-                                                  Row(
-                                                      children: [
-                                                        const Icon(Icons.flag_rounded, color: Color(0xFFA0A5BD)),
-                                                        const SizedBox(width: 10),
-                                                        Expanded(
-                                                            child: Text(
-                                                                competition[index]["competitionCountry"],
-                                                                style: const TextStyle(
-                                                                    fontSize: 17,
-                                                                    color: Colors.grey,
-                                                                    fontWeight: FontWeight.bold
-                                                                )
-                                                            )
-                                                        )
-                                                      ]
+                                                  Text(
+                                                      "${updateCompetition.length} nouveaux concours",
+                                                      style: GoogleFonts.rubik(
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.bold
+                                                      )
                                                   ),
                                                   const SizedBox(height: 5),
-                                                  Row(
-                                                      children: [
-                                                        const Icon(
-                                                            Icons.perm_contact_calendar_rounded,
-                                                            color: Color(0xFFA0A5BD)
-                                                        ),
-                                                        const SizedBox(width: 10),
-                                                        Expanded(
-                                                            child: Text(
-                                                                competition[index]["competitionContacts"],
-                                                                overflow: TextOverflow.ellipsis,
-                                                                style: const TextStyle(
-                                                                    fontSize: 17,
-                                                                    color: Colors.grey,
-                                                                    fontWeight: FontWeight.bold
-                                                                )
-                                                            )
-                                                        )
-                                                      ]
+                                                  Text(
+                                                      "Cliquez sur le bouton actualiser ci-contre pour voir.",
+                                                      style: GoogleFonts.rubik(
+                                                          fontSize: 13,
+                                                          color: Colors.grey
+                                                      )
                                                   ),
-                                                  const SizedBox(height: 5),
-                                                  Row(
-                                                      children: [
-                                                        const Icon(Icons.link_rounded, color: Color(0xFFA0A5BD), size: 30),
-                                                        const SizedBox(width: 5),
-                                                        Expanded(
-                                                            child: ParsedText(
-                                                                text: competition[index]["competitionLink"].toString(),
-                                                                overflow: TextOverflow.ellipsis,
-                                                                style:  const TextStyle(
-                                                                    fontSize: 17,
-                                                                    color: Colors.grey,
-                                                                    fontWeight: FontWeight.bold
-                                                                ),
-                                                                parse: <MatchText>[
-                                                                  MatchText(
-                                                                      type: ParsedType.URL,
-                                                                      style: const TextStyle(
-                                                                          fontSize: 17,
-                                                                          color: Colors.blue
-                                                                      ),
-                                                                      onTap: (url) async{
-                                                                        if (!await launch(url)) throw '';
-                                                                      }
-                                                                  )
-                                                                ]
-                                                            )
-                                                        )
-                                                      ]
-                                                  ),
-                                                  const SizedBox(height: 5),
-                                                  Row(
-                                                      children: <Widget>[
-                                                        Container(
-                                                            height: 40,
-                                                            decoration: BoxDecoration(
-                                                                color: const Color(0xfff29200),
-                                                                borderRadius: BorderRadius.circular(100)
-                                                            ),
-                                                            child: IconButton(
-                                                                onPressed: (){
-                                                                  /*
-                                                                          String ad = "Tu prépares un concours, un examen, "
-                                                                              "Télécharge  l'application prepa reussite en cliquant sur ce lien: "
-                                                                              "https://play.google.com/store/apps/details?id=com.archetechnology.prepa_reussite "
-                                                                              " pour une préparation en ligne efficace, anciens sujets et corrigés disponible, les informations "
-                                                                              "pour postuler au concours disponible.";
-                                                                          String id = concours[index]["concourId"].toString();
-                                                                          String name = concours[index]["concourNom"].replaceAll(" ", "-");
-                                                                          String text = concours[index]["concourNom"] + " \nCliquez sur le lien ci-dessous pour plus d'informations. \n"
-                                                                              "https://totale-reussite.com/concours/concours-view/"+
-                                                                              id+"/"+name+"\n\n"+ad;
-                                                                          SocialShare.shareOptions(text).then((data) {});
-                                                                       */
-                                                                },
-                                                                icon: const Icon(
-                                                                    Icons.share_rounded,
-                                                                    color: Colors.white
-                                                                )
-                                                            )
-                                                        ),
-                                                        const SizedBox(width: 10),
-                                                        Expanded(
-                                                            child: SizedBox(
-                                                                height: 40,
-                                                                child: TextButton(
-                                                                    style: ButtonStyle(
-                                                                        backgroundColor: MaterialStateProperty.all<Color>(const Color(0xff1f71ba)),
-                                                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                                                            RoundedRectangleBorder(
-                                                                                borderRadius: BorderRadius.circular(100)
-                                                                            )
-                                                                        )
-                                                                    ),
-                                                                    onPressed: (){
-                                                                      Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => SpecificCompetitionScreen(
-                                                                              competition: competition[index],
-                                                                            )
-                                                                        )
-                                                                      );
-                                                                    },
-                                                                    child: const Text("Voir",
-                                                                        style: TextStyle(
-                                                                          color: Colors.white,
-                                                                          fontWeight: FontWeight.bold,
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        ),
-                                                        const SizedBox(width: 10)
-                                                      ]
-                                                  ),
-                                                  const SizedBox(height: 5)
+                                                  const SizedBox(height: 3)
                                                 ]
                                             )
-                                        )
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Icon(Icons.refresh_rounded)
                                       ]
                                   )
-                                ]
-                            )
-                        );
-                      },
-                    separatorBuilder: (BuildContext context, int index){
-                      return const Divider(thickness: 5, color: Colors.grey);
-                    }
-                  )
-              )
-            ]
+                              )
+                          )
+                      ),
+                      Column(
+                          children: competition.map(
+                                  (e){
+                                String text = "";
+                                return GestureDetector(
+                                  onTap: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SpecificCompetitionScreen(
+                                              competition: e,
+                                            )
+                                        )
+                                    );
+                                  },
+                                  child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      margin: const EdgeInsets.only(bottom: 3),
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white
+                                      ),
+                                      child: Row(
+                                          children: [
+                                            CachedNetworkImage(
+                                                imageUrl: "https://archetechnology.com/public/assets/img/infographie.png",
+                                                placeholder: (context, url) => const Center(
+                                                    child: SizedBox(
+                                                        width: 30,
+                                                        height: 30,
+                                                        child: CircularProgressIndicator()
+                                                    )
+                                                ),
+                                                imageBuilder: (context, imageProvider) =>
+                                                    Container(
+                                                        width: 50,
+                                                        height: 50,
+                                                        decoration: BoxDecoration(
+                                                            image: DecorationImage(
+                                                                image: imageProvider,
+                                                                fit: BoxFit.cover
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(5)
+                                                        )
+                                                    ),
+                                                errorWidget: (context, url, error) => const Padding(
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Icon(Icons.error)
+                                                )
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                                child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                          e["competitionName"].toUpperCase(),
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: GoogleFonts.rubik(
+                                                            color: Colors.black,
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: 18
+                                                          )
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                          e["competitionDescription"],
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: GoogleFonts.rubik(
+                                                              color: Colors.grey
+                                                          )
+                                                      )
+                                                    ]
+                                                )
+                                            ),
+                                            const SizedBox(width: 5),
+                                            const Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                size: 16
+                                            )
+                                          ]
+                                      )
+                                  )
+                                );
+                              }
+                          ).toList()
+                      ),
+                      const SizedBox(height: 10),
+                      Visibility(
+                          visible: seeMore,
+                          child: const SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                  color: Color(0xff0b65c2)
+                              )
+                          )
+                      ),
+                      const SizedBox(height: 10)
+                    ]
+                )
+              ]
+          )
         )
     );
   }

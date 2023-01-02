@@ -1,9 +1,9 @@
 import 'dart:io';
-import '../../services/api.dart';
 import 'package:flutter/material.dart';
 import '../../services/local_data.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:totale_reussite/services/club_api.dart';
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
@@ -27,7 +27,7 @@ class CommentScreenState extends State<CommentScreen> {
   TextEditingController descriptionController = TextEditingController();
 
   Future getComments() async{
-    List values = await ManageDatabase().getComments(post["postId"]);
+    List values = await ClubOnlineRequests().getComments(post["postId"]);
     setState(() {
       comments.addAll(values);
     });
@@ -42,7 +42,7 @@ class CommentScreenState extends State<CommentScreen> {
     String date = DateTime.now().toString().split(".")[0];
 
     if(description.isNotEmpty){
-      await ManageDatabase().addComment(post["postId"], description, date,
+      await ClubOnlineRequests().addComment(post["postId"], description, date,
                                         uid, avatar, pseudo, imagePath);
       setState(() {
         imagePath = "";
@@ -65,7 +65,7 @@ class CommentScreenState extends State<CommentScreen> {
   }
 
   Future deleteComment(String commentId, int index) async{
-    await ManageDatabase().deleteComment(commentId);
+    await ClubOnlineRequests().deleteComment(commentId);
     setState(() {
       comments.removeAt(index);
       seeDeleteConfirm = false;

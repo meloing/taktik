@@ -26,20 +26,30 @@ class RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
 
     return Scaffold(
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 30),
+            IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xff0b65c2)
+                )
+            ),
             Expanded(
                 child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(15),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 20),
                           Text(
                               'Etape 3',
                               style: GoogleFonts.quicksand(
                                   textStyle: const TextStyle(
                                       fontSize: 30,
-                                      color: Colors.blue,
+                                      color: Color(0xff0b65c2),
                                       fontWeight: FontWeight.bold
                                   )
                               )
@@ -54,34 +64,36 @@ class RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                               )
                           ),
                           const SizedBox(height: 20),
-                          Wrap(
-                              spacing: 10,
-                              children: avatars.map(
-                                      (e) => GestureDetector(
-                                      onTap: (){
-                                        setState(() {
-                                          choose = e;
-                                        });
-                                      },
-                                      child: SizedBox(
-                                          width: w,
-                                          height: 120,
-                                          child: Center(
-                                              child: CircleAvatar(
-                                                  radius: 50,
-                                                  backgroundColor: choose == e ? Colors.blue : Colors.white,
-                                                  child: Padding(
-                                                      padding: EdgeInsets.all(choose == e ? 3 : 0),
-                                                      child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(100),
-                                                          child: Image.asset('assets/images/avatar-$e.png')
-                                                      )
-                                                  )
-                                              )
-                                          )
-                                      )
-                                  )
-                              ).toList()
+                          Center(
+                            child: Wrap(
+                                spacing: 10,
+                                children: avatars.map(
+                                        (e) => GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            choose = e;
+                                          });
+                                        },
+                                        child: SizedBox(
+                                            width: w,
+                                            height: 120,
+                                            child: Center(
+                                                child: CircleAvatar(
+                                                    radius: 50,
+                                                    backgroundColor: choose == e ? Colors.blue : Colors.white,
+                                                    child: Padding(
+                                                        padding: EdgeInsets.all(choose == e ? 3 : 0),
+                                                        child: ClipRRect(
+                                                            borderRadius: BorderRadius.circular(100),
+                                                            child: Image.asset('assets/images/avatar-$e.png')
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ).toList()
+                            )
                           ),
                           const SizedBox(height: 20)
                         ]
@@ -91,12 +103,12 @@ class RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
             Padding(
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                  height: 50,
+                  height: 56,
                   width: double.infinity,
                   child: TextButton(
                       style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blue
+                              const Color(0xff0b65c2)
                           ),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
@@ -114,23 +126,10 @@ class RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                               )
                           );
                         }
-
-                        /*
-                            await ManageDatabase().addUser(uid, name, level, pseudo,
-                                number, country, civility, birthday, firstName,
-                                establishment);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const NavScreen()
-                                )
-                            );
-
-                     */
                       },
-                      child: const Text(
+                      child: Text(
                           "Valider",
-                          style: TextStyle(
+                          style: GoogleFonts.rubik(
                               color: Colors.white,
                               fontWeight: FontWeight.bold
                           )

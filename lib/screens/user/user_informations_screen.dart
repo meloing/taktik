@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:social_share/social_share.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../services/local_data.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:totale_reussite/screens/user/login_screen.dart';
-import 'package:totale_reussite/screens/other/premium_screen.dart';
 
-class UserInformationsScreen extends StatefulWidget {
-  const UserInformationsScreen({
+class UserInformationScreen extends StatefulWidget {
+  const UserInformationScreen({
     super.key
   });
 
   @override
-  State<UserInformationsScreen> createState() => UserInformationsScreenState();
+  State<UserInformationScreen> createState() => UserInformationScreenState();
 }
 
-class UserInformationsScreenState extends State<UserInformationsScreen> {
+class UserInformationScreenState extends State<UserInformationScreen> {
   String uid = "";
   String level = "";
   String avatar = "";
@@ -50,10 +45,20 @@ class UserInformationsScreenState extends State<UserInformationsScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          title: const Text("Vos informations"),
+            iconTheme: const IconThemeData(
+                color: Color(0xff0b65c2)
+            ),
+            elevation: 0,
+            centerTitle: true,
+            title: Text(
+              "Vos informations",
+              style: GoogleFonts.quicksand(
+                  color: const Color(0xff0b65c2),
+                  fontWeight: FontWeight.bold
+              )
+          )
         ),
+        backgroundColor: const Color(0xffebe6e0),
         body: SingleChildScrollView(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -62,8 +67,8 @@ class UserInformationsScreenState extends State<UserInformationsScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(color: Colors.grey[200]!)
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5)
                       ),
                       child: Column(
                           children: [
@@ -102,8 +107,8 @@ class UserInformationsScreenState extends State<UserInformationsScreen> {
                           bottom: 10
                       ),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(color: Colors.grey[200]!)
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5)
                       ),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

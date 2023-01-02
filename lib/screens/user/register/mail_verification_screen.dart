@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'dart:async';
-import '../../../services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:totale_reussite/services/user_api.dart';
 import 'package:totale_reussite/screens/user/register/register_step_one_screen.dart';
 
 class MailVerificationScreen extends StatefulWidget {
@@ -69,7 +69,7 @@ class MailVerificationScreenState extends State<MailVerificationScreen> {
 
   Future resendCode() async{
     code = generateCode();
-    await LocalDatabase().sendCode(email, code);
+    await UserOnlineRequests().sendCode(email, code);
   }
 
   Future verifyCode() async{
@@ -85,13 +85,11 @@ class MailVerificationScreenState extends State<MailVerificationScreen> {
   }
 
   Future<void> emailPasswordSignIn() async{
-
     try{
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
       String uid = credential.user?.uid ?? "";
 
       if(!mounted) return ;

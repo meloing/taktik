@@ -1,3 +1,5 @@
+import 'package:totale_reussite/services/course_api.dart';
+
 import '../../services/api.dart';
 import 'package:flutter/material.dart';
 import '../../services/utilities.dart';
@@ -19,12 +21,12 @@ class StatsByScreenState extends State<StatsByScreen> {
 
   Future getSubject() async{
     String level = LocalData().getLevel();
-    List values = await LocalDatabase().getSubjects(level);
+    List values = await CourseOfflineRequests().getSubjects(level);
     Map temp = Utilities().textToMap(values[0]["subjectValues"]);
     Map tempRes = {};
     for(String key in temp.keys){
-      int numberCourse = await LocalDatabase().getNumberCourse(key);
-      int numberCourseFinished = await LocalDatabase().getNumberFinishedCourse(key);
+      int numberCourse = await CourseOfflineRequests().getNumberCourse();
+      int numberCourseFinished = await CourseOfflineRequests().getNumberFinishedCourse();
 
       tempRes[key] = {
         "name" : temp[key],

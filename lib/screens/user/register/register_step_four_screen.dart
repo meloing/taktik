@@ -1,5 +1,5 @@
-import '../../../services/api.dart';
 import 'package:flutter/material.dart';
+import '../../../services/user_api.dart';
 import '../../../services/local_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:totale_reussite/screens/other/nav_screen.dart';
@@ -27,6 +27,27 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
   String firstName = "";
   String establishment = "";
 
+  Future register() async {
+    setState(() { launch = true; });
+    String referral = LocalData().getReferralCode();
+
+    await UserOnlineRequests().addUser(
+        uid, firstName, level, pseudo, number, country,
+        birthday, lastName, establishment, avatar, gender
+    );
+    await UserOnlineRequests().sendReferral(referral);
+
+    if(!mounted) return;
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const NavScreen()
+        )
+    );
+
+    setState(() { launch = false; });
+  }
+
   @override
   initState() {
     super.initState();
@@ -48,20 +69,30 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
 
     return Scaffold(
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 30),
+            IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xff0b65c2)
+                )
+            ),
             Expanded(
               child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(15),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
                         Text(
                             'Dernière étape',
                             style: GoogleFonts.quicksand(
                                 textStyle: const TextStyle(
                                     fontSize: 30,
-                                    color: Colors.blue,
+                                    color: Color(0xff0b65c2),
                                     fontWeight: FontWeight.bold
                                 )
                             )
@@ -80,9 +111,10 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextField(
-                                enabled: false,
-                                controller: TextEditingController(text: pseudo),
-                                decoration: InputDecoration(
+                                  enabled: false,
+                                  style: GoogleFonts.rubik(),
+                                  controller: TextEditingController(text: pseudo),
+                                  decoration: InputDecoration(
                                     labelText: "Pseudo",
                                     border: const OutlineInputBorder(),
                                     labelStyle: GoogleFonts.rubik(
@@ -96,6 +128,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: firstName),
                                   decoration: InputDecoration(
                                       labelText: "Nom",
@@ -111,6 +144,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: lastName),
                                   decoration: InputDecoration(
                                       labelText: "Prénoms",
@@ -126,6 +160,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: number),
                                   decoration: InputDecoration(
                                       labelText: "Numéro",
@@ -141,6 +176,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: country),
                                   decoration: InputDecoration(
                                       labelText: "Pays",
@@ -156,6 +192,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: birthday),
                                   decoration: InputDecoration(
                                       labelText: "Date de naissance",
@@ -171,6 +208,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: establishment),
                                   decoration: InputDecoration(
                                       labelText: "Etablissement",
@@ -186,6 +224,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: level),
                                   decoration: InputDecoration(
                                       labelText: "Niveau",
@@ -201,6 +240,7 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                   enabled: false,
+                                  style: GoogleFonts.rubik(),
                                   controller: TextEditingController(text: gender),
                                   decoration: InputDecoration(
                                       labelText: "Genre",
@@ -244,12 +284,12 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
             Padding(
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                    height: 50,
+                    height: 56,
                     width: double.infinity,
                     child: TextButton(
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.blue
+                                const Color(0xff0b65c2)
                             ),
                             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
@@ -257,32 +297,14 @@ class RegisterStepFourScreenState extends State<RegisterStepFourScreen> {
                                 )
                             )
                         ),
-                        onPressed: !launch ?
-                            ()async{
-                              setState(() { launch = true; });
-
-                              await ManageDatabase().addUser(
-                                  uid, firstName, level, pseudo, number, country,
-                                  birthday, lastName, establishment, avatar, gender
-                              );
-
-                              if(!mounted) return;
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const NavScreen()
-                                  )
-                              );
-
-                              setState(() { launch = false; });
-                        } : null,
+                        onPressed: !launch ? register : null,
                         child: !launch ?
-                        const Text(
+                        Text(
                           "Valider",
-                          style: TextStyle(
+                          style: GoogleFonts.rubik(
                               color: Colors.white,
                               fontWeight: FontWeight.bold
-                          ),
+                          )
                         ) :
                         const SizedBox(
                           width: 30,

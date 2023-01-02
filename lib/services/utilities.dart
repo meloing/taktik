@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:totale_reussite/services/local_data.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 class MarkDown{
   Widget body(course){
@@ -38,7 +40,7 @@ class MarkDown{
         margin: const EdgeInsets.symmetric(vertical: 10),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-            color: const Color(0xff1f71ba),
+            color: Colors.grey,
             borderRadius: BorderRadius.circular(5)
         ),
         child: Center(
@@ -65,7 +67,7 @@ class MarkDown{
               style: GoogleFonts.quicksand(
                   textStyle: const TextStyle(
                       fontSize: 15,
-                      color: Colors.blue,
+                      color: Color(0xff0b65c2),
                       fontWeight: FontWeight.bold
                   )
               )
@@ -188,7 +190,6 @@ class MarkDown{
   }
 }
 
-
 class Utilities{
 
   String mapToText(Map values){
@@ -206,5 +207,97 @@ class Utilities{
     }
 
     return result;
+  }
+
+  bool isPremium(){
+    if(LocalData().getPremiumFinish().isEmpty){
+      return false;
+    }
+    else{
+      DateTime finishDate = DateTime.parse(LocalData().getPremiumFinish());
+      DateTime todayDate = DateTime.now();
+      if(finishDate.isBefore(todayDate)){
+        return false;
+      }
+      else{
+        return true;
+      }
+    }
+
+  }
+
+  Future<bool> haveConnection()async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if(result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      } else{
+        return false;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
+  Future<String> createDynamicLink() async {
+    String pseudo = LocalData().getPseudo();
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+        uriPrefix: 'https://archetechnology.page.link/',
+        link: Uri.parse('https://archetechnology.page.link/$pseudo'),
+        androidParameters: const AndroidParameters(
+          packageName: 'com.archetechnology.totale_reussite',
+          minimumVersion: 0,
+        ),
+        iosParameters: const IOSParameters(
+            bundleId: 'com.archetechnology.totale_reussite',
+            minimumVersion: '0'
+        )
+    );
+
+    final ShortDynamicLink shortLink = await FirebaseDynamicLinks.instance.buildShortLink(parameters);
+    return shortLink.shortUrl.toString();
+  }
+
+  Future<String> remoteConfigValue(String part) async{
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+            fetchTimeout: const Duration(minutes: 1),
+            minimumFetchInterval: const Duration(minutes: 1)
+        )
+    );
+    await remoteConfig.setDefaults(const {
+      "appVersion": "0.5.5",
+      "lastProductDate": "",
+      "lastArticleDate": "",
+      "lastPointMethodDate": "",
+      "lastCompetitionDate": ""
+    });
+
+    try{
+      await remoteConfig.fetchAndActivate();
+    }
+    catch (_) {}
+
+    if(part == "appVersion"){
+      String appVersion = remoteConfig.getString("appVersion");
+      return appVersion;
+    }
+    else if(part == "lastArticleDate"){
+      String lastArticleDate = remoteConfig.getString("lastArticleDate");
+      return lastArticleDate;
+    }
+    else if(part == "lastPointMethodDate"){
+      String lastPointMethodDate = remoteConfig.getString("lastPointMethodDate");
+      return lastPointMethodDate;
+    }
+    else if(part == "lastCompetitionDate"){
+      String lastCompetitionDate = remoteConfig.getString("lastCompetitionDate");
+      return lastCompetitionDate;
+    }
+    else{
+      String lastProductDate = remoteConfig.getString("lastProductDate");
+      return lastProductDate;
+    }
   }
 }
