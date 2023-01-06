@@ -1,6 +1,6 @@
-# totale_reussite
+# taktik
 
-A new Flutter project.
+The best elearning app.
 
 ## Getting Started
 
