@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../services/user_api.dart';
 import '../../../services/local_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:totale_reussite/screens/user/register/register_step_two_screen.dart';
 
-import '../../../services/user_api.dart';
 
 class RegisterStepOneScreen extends StatefulWidget {
   const RegisterStepOneScreen({
@@ -22,6 +22,7 @@ class RegisterStepOneScreen extends StatefulWidget {
 class RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
   String uid = "";
   bool launch = false;
+  String birthday = "";
   String sigInMethod = "";
   String country = "Choisissez votre pays";
   String gender = 'Choisissez votre genre';
@@ -193,6 +194,34 @@ class RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
     }
   }
 
+  Future _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        builder: (BuildContext context, Widget ?child) {
+          return Theme(
+              data: ThemeData(
+                  splashColor: const Color(0xff0b65c2),
+                  colorScheme: const ColorScheme.light(
+                      primary: Color(0xff0b65c2)
+                  ),
+                  dialogBackgroundColor: Colors.white
+              ),
+              child: child ?? const Text("")
+          );
+        },
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1000),
+        lastDate: DateTime(10000)
+    );
+
+    if(picked != null){
+      setState(() {
+        birthday = picked.toString().split(" ")[0];
+        birthdayController.text = picked.toString().split(" ")[0].split("-").reversed.join("-");
+      });
+    }
+  }
+
   @override
   initState() {
     super.initState();
@@ -332,27 +361,36 @@ class RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
                                       }
                                   ),
                                   const SizedBox(height: 10),
-                                  TextFormField(
-                                      controller: birthdayController,
-                                      style: GoogleFonts.rubik(),
-                                      cursorColor: Colors.black,
-                                      decoration: const InputDecoration(
-                                          labelText: "Date de naissance *",
-                                          labelStyle: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.grey),
-                                          ),
-                                          border: OutlineInputBorder()
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Ce champ est obligatoire';
+                                  GestureDetector(
+                                    onTap: (){
+                                      _selectDate(context);
+                                    },
+                                    child: TextFormField(
+                                        enabled: false,
+                                        controller: birthdayController,
+                                        style: GoogleFonts.rubik(),
+                                        cursorColor: Colors.black,
+                                        decoration: const InputDecoration(
+                                            labelText: "Date de naissance *",
+                                            labelStyle: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(color: Colors.grey)
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(color: Colors.grey)
+                                            ),
+                                            border: OutlineInputBorder()
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Ce champ est obligatoire';
+                                          }
+                                          return null;
                                         }
-                                        return null;
-                                      }
+                                    )
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(

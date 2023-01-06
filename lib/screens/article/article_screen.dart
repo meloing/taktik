@@ -16,15 +16,17 @@ class ArticleScreenState extends State<ArticleScreen> {
   bool seeMore = false;
   bool launchGetArticles = false;
   final ScrollController _controller = ScrollController();
+  TextEditingController searchController = TextEditingController();
 
   Future getArticles() async{
-    List values = await ArticlesOfflineRequests().getArticles(offset, 10);
+    String text = searchController.text;
+    List values = await ArticlesOfflineRequests().getArticles(offset, 20, text);
     setState(() {
       if(offset == 0){
         articles.clear();
       }
 
-      if(values.length == 5){
+      if(values.length == 20){
         seeMore = true;
       }
       else{
@@ -70,9 +72,63 @@ class ArticleScreenState extends State<ArticleScreen> {
         backgroundColor: const Color(0xffebe6e0),
         body: SingleChildScrollView(
             controller: _controller,
-            padding: const EdgeInsets.only(top: 10),
             child: Column(
               children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 5
+                    ),
+                    height: 44,
+                    child: TextField(
+                        cursorColor: Colors.black,
+                        controller: searchController,
+                        decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                color: Colors.black
+                            ),
+                            border: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)
+                            ),
+                            labelText: "Recherche un article",
+                            labelStyle: GoogleFonts.rubik(
+                                fontSize: 13,
+                                color: Colors.black
+                            )
+                        ),
+                        onChanged: (value){
+                          setState(() {
+                            offset = 0;
+                            launchGetArticles = true;
+                          });
+                          getArticles();
+                        }
+                    )
+                ),
+                launchGetArticles ?
+                const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xff0b65c2)
+                    )
+                ) :
+                articles.isEmpty ?
+                Center(
+                    child: Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Text(
+                            "Aucun résultat",
+                            style: GoogleFonts.rubik(
+                                fontWeight: FontWeight.bold
+                            )
+                        )
+                    )
+                ):
                 Column(
                     children: articles.map(
                             (e) => Container(

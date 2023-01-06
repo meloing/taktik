@@ -2,9 +2,9 @@ import '../../services/user_api.dart';
 import 'package:flutter/material.dart';
 import 'package:social_share/social_share.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:totale_reussite/services/local_data.dart';
 import 'package:totale_reussite/services/utilities.dart';
 import 'package:totale_reussite/services/course_api.dart';
+import 'package:totale_reussite/services/local_data.dart';
 import 'package:totale_reussite/screens/other/premium_screen.dart';
 import 'package:totale_reussite/screens/courses/specific_course_screen.dart';
 
@@ -35,9 +35,13 @@ class SpecificMatterScreenState extends State<SpecificMatterScreen> {
   bool launchGetCourses = true;
   String points = LocalData().getPoints();
   final ScrollController _controller = ScrollController();
+  TextEditingController searchController = TextEditingController();
 
   Future getCourses() async{
-    List values = await CourseOfflineRequests().getCourses(level, subject, offset);
+    String text = searchController.text;
+    List values = await CourseOfflineRequests().getCourses(level, subject,
+         offset, text);
+
     setState(() {
       if(offset == 0){
         courses.clear();
@@ -349,6 +353,43 @@ class SpecificMatterScreenState extends State<SpecificMatterScreen> {
         ),
         body: Column(
           children: [
+            Container(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 5
+                ),
+                height: 44,
+                child: TextField(
+                    cursorColor: Colors.black,
+                    controller: searchController,
+                    decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            color: Colors.black
+                        ),
+                        border: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey)
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey)
+                        ),
+                        labelText: "Recherche un cours",
+                        labelStyle: GoogleFonts.rubik(
+                            fontSize: 13,
+                            color: Colors.black
+                        )
+                    ),
+                    onChanged: (value){
+                      setState(() {
+                        offset = 0;
+                        launchGetCourses = true;
+                      });
+                      getCourses();
+                    }
+                )
+            ),
             Expanded(
               child: SingleChildScrollView(
                   controller: _controller,
@@ -356,41 +397,16 @@ class SpecificMatterScreenState extends State<SpecificMatterScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 7,
-                                vertical: 5
-                            ),
-                            height: 44,
-                            child: TextField(
-                                // controller: searchController,
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.transparent,
-                                    prefixIcon: const Icon(Icons.search_rounded),
-                                    border: const OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.transparent)
-                                    ),
-                                    labelText: "Recherche un cours",
-                                    labelStyle: GoogleFonts.rubik(
-                                        fontSize: 13
-                                    )
-                                ),
-                                onChanged: (value){
-                                  setState(() {
-
-                                  });
-                                }
-                            )
-                        ),
                         launchGetCourses ?
                         const Center(
-                            child: CircularProgressIndicator()
+                            child: CircularProgressIndicator(
+                                color: Color(0xff0b65c2)
+                            )
                         ):
                         courses.isEmpty ?
                         Center(
                             child: Text(
-                                "Aucun cours pour le moment revenez plus tard",
+                                "Aucun cours trouvé",
                                 style: GoogleFonts.quicksand(
                                     textStyle: const TextStyle(
                                         fontWeight: FontWeight.bold

@@ -200,13 +200,13 @@ class CourseOfflineRequests {
     return maps[0]["total"];
   }
 
-  Future<List> getLocalCourses(String level, String subject, int offset) async {
+  Future<List> getLocalCourses(String level, String subject, int offset, String text) async {
     await createDatabase();
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
         "courses",
-        where: "courseLevel = ? AND courseSubject = ?",
-        whereArgs: [level, subject],
+        where: "courseLevel = ? AND courseSubject = ? AND courseTitle LIKE ?",
+        whereArgs: [level, subject, "%$text%"],
         offset: offset,
         limit: 20
     );
@@ -290,7 +290,7 @@ class CourseOfflineRequests {
     }
   }
 
-  Future getCourses(String level, String subject, int offset) async{
+  Future getCourses(String level, String subject, int offset, String text) async{
     late List values;
     String lastDate = "";
 
@@ -299,8 +299,8 @@ class CourseOfflineRequests {
       lastDate = val[0]["courseDate"];
     }
 
-    values = await getLocalCourses(level, subject, offset);
-    if(values.isEmpty){
+    values = await getLocalCourses(level, subject, offset, text);
+    if(values.isEmpty && text.isEmpty){
       values = await CourseOnlineRequests().getCourses(level, subject, lastDate);
       await addOrUpdateCourse(values);
     }

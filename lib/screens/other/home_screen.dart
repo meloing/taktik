@@ -143,14 +143,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future getArticles() async{
-    List values = await ArticlesOfflineRequests().getArticles(0, 3);
+    List values = await ArticlesOfflineRequests().getArticles(0, 3, "");
     setState(() {
       articles.addAll(values);
     });
   }
 
   Future getPointMethods() async{
-    List values = await PointMethodOfflineRequests().getPointMethods(0, 3);
+    List values = await PointMethodOfflineRequests().getPointMethods(0, 3, "");
     setState(() {
       pointsMethods.addAll(values);
     });
@@ -630,7 +630,6 @@ class HomeScreenState extends State<HomeScreen> {
                         ]
                     )
                 ),
-
                 Padding(
                     padding: const EdgeInsets.all(10),
                     child: Row(

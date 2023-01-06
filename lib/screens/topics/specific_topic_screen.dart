@@ -1,3 +1,4 @@
+import '../other/premium_screen.dart';
 import 'package:flutter/material.dart';
 import '../../services/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -112,7 +113,14 @@ class SpecificTopicScreenState extends State<SpecificTopicScreen> with TickerPro
                                           )
                                       )
                                   ),
-                                  onPressed: (){},
+                                  onPressed: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const PremiumScreen()
+                                        )
+                                    );
+                                  },
                                   child: Text(
                                       "Devenir premium",
                                       style: GoogleFonts.rubik(

@@ -73,21 +73,6 @@ class ProductsScreenState extends State<ProductsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                launchGetProducts ?
-                const Center(
-                    child: CircularProgressIndicator()
-                ):
-                products.isEmpty ?
-                Center(
-                    child: Text(
-                        "Aucun produit trouvé",
-                        style: GoogleFonts.rubik(
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.bold
-                            )
-                        )
-                    )
-                ):
                 Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -98,17 +83,25 @@ class ProductsScreenState extends State<ProductsScreen> {
                           ),
                           height: 44,
                           child: TextField(
+                              cursorColor: Colors.black,
                               controller: searchController,
                               decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.transparent,
-                                  prefixIcon: const Icon(Icons.search_rounded),
+                                  prefixIcon: const Icon(
+                                      Icons.search_rounded,
+                                      color: Colors.black
+                                  ),
                                   border: const OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.transparent)
+                                      borderSide: BorderSide(color: Colors.grey)
+                                  ),
+                                  focusedBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey)
                                   ),
                                   labelText: "Recherche un produit",
                                   labelStyle: GoogleFonts.rubik(
-                                      fontSize: 13
+                                      fontSize: 13,
+                                      color: Colors.black
                                   )
                               ),
                               onChanged: (value){
@@ -183,6 +176,21 @@ class ProductsScreenState extends State<ProductsScreen> {
                             ),
                           )
                       ),
+                      launchGetProducts ?
+                      const Center(
+                          child: CircularProgressIndicator()
+                      ):
+                      products.isEmpty ?
+                      Center(
+                          child: Text(
+                              "Aucun produit trouvé",
+                              style: GoogleFonts.rubik(
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold
+                                  )
+                              )
+                          )
+                      ):
                       Column(
                           children: products.map(
                                   (product){
@@ -215,7 +223,8 @@ class ProductsScreenState extends State<ProductsScreen> {
                                                               image: DecorationImage(
                                                                   image: imageProvider,
                                                                   fit: BoxFit.cover
-                                                              )
+                                                              ),
+                                                            borderRadius: BorderRadius.circular(5)
                                                           )
                                                       ),
                                                   placeholder: (context, url) => const Center(
@@ -247,7 +256,6 @@ class ProductsScreenState extends State<ProductsScreen> {
                                                                 )
                                                             )
                                                         ),
-                                                        const SizedBox(height: 5),
                                                         Text(
                                                             product["productPrice"],
                                                             overflow: TextOverflow.ellipsis,
@@ -262,7 +270,7 @@ class ProductsScreenState extends State<ProductsScreen> {
                                                         Text(
                                                             product["productPlus"],
                                                             style: GoogleFonts.rubik(
-                                                              color: Colors.grey,
+                                                              color: Colors.grey
                                                             )
                                                         )
                                                       ]

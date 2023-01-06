@@ -112,7 +112,7 @@ class RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                           ),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)
+                                  borderRadius: BorderRadius.circular(10)
                               )
                           )
                       ),

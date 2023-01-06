@@ -82,11 +82,13 @@ class ArticlesOfflineRequests{
     );
   }
 
-  Future<List> getLocalArticles(int offset, int limit) async {
+  Future<List> getLocalArticles(int offset, int limit, String text) async {
     await createDatabase();
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
         "articles",
+        where: "title LIKE ?",
+        whereArgs: ["%$text%"],
         offset: offset,
         limit: limit
     );
@@ -131,7 +133,7 @@ class ArticlesOfflineRequests{
     });
   }
 
-  Future getArticles(int offset, int limit) async{
+  Future getArticles(int offset, int limit, String text) async{
     late List values;
     String lastDate = "";
 
@@ -140,8 +142,8 @@ class ArticlesOfflineRequests{
       lastDate = val[0]["date"];
     }
 
-    values = await getLocalArticles(offset, limit);
-    if(values.isEmpty){
+    values = await getLocalArticles(offset, limit, text);
+    if(values.isEmpty && text.isEmpty){
       values = await ArticlesOnlineRequests().getArticles(lastDate);
       await addOrUpdateArticle(values);
     }

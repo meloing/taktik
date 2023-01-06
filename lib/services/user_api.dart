@@ -22,8 +22,8 @@ class UserOnlineRequests {
           "firstName": firstName,
           "establishment": establishment
         })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
+        .then((value) => true)
+        .catchError((error) => false);
   }
 
   Future addPremium(String uid, String premium, String premiumFinish) async {
@@ -69,6 +69,7 @@ class UserOnlineRequests {
 
   Future getSubjects() async{
     QuerySnapshot querySnapshot = await subjects
+        .orderBy("subjectNumber")
         .get();
     final allData = querySnapshot.docs.map(
             (doc){

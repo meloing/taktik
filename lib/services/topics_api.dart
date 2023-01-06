@@ -7,6 +7,7 @@ import 'local_data.dart';
 
 class TopicOnlineRequests {
   CollectionReference topics = FirebaseFirestore.instance.collection('topics');
+
   Future getTopics(String level, String lastDate) async{
     QuerySnapshot querySnapshot = await topics
                                         .where('level', isEqualTo: level)
@@ -100,13 +101,13 @@ class TopicOfflineRequests {
     );
   }
 
-  Future<List> getLocalTopics(String level, int offset) async {
+  Future<List> getLocalTopics(String level, int offset, String text) async {
     await createDatabase();
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
         "topics",
-        where: "level = ?",
-        whereArgs: [level],
+        where: "level = ? AND title LIKE ?",
+        whereArgs: [level, "%$text%"],
         offset: offset,
         limit: 20
     );
@@ -189,7 +190,7 @@ class TopicOfflineRequests {
     }
   }
 
-  Future getTopics(String level, int offset) async{
+  Future getTopics(String level, int offset, String text) async{
     late List values;
     String lastDate = "";
 
@@ -198,8 +199,8 @@ class TopicOfflineRequests {
       lastDate = val[0]["date"];
     }
 
-    values = await getLocalTopics(level, offset);
-    if(values.isEmpty){
+    values = await getLocalTopics(level, offset, text);
+    if(values.isEmpty && text.isEmpty){
       values = await TopicOnlineRequests().getTopics(level, lastDate);
       await addOrUpdateTopic(values);
     }

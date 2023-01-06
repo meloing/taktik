@@ -20,8 +20,9 @@ class TopicsScreenState extends State<TopicsScreen> {
   TextEditingController searchController = TextEditingController();
 
   Future getTopics() async{
+    String text = searchController.text;
     String level = LocalData().getLevel();
-    List values = await TopicOfflineRequests().getTopics(level, offset);
+    List values = await TopicOfflineRequests().getTopics(level, offset, text);
 
     setState(() {
       if(offset == 0){
@@ -141,26 +142,55 @@ class TopicsScreenState extends State<TopicsScreen> {
                     child: SizedBox(
                         height: 44,
                         child: TextField(
+                            cursorColor: Colors.black,
                             controller: searchController,
                             decoration: InputDecoration(
-                                prefixIcon: const Icon(Icons.search_rounded),
+                                filled: true,
+                                fillColor: Colors.transparent,
+                                prefixIcon: const Icon(
+                                    Icons.search_rounded,
+                                    color: Colors.black
+                                ),
                                 border: const OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.transparent)
+                                    borderSide: BorderSide(color: Colors.grey)
+                                ),
+                                focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey)
                                 ),
                                 labelText: "Recherche un sujet",
                                 labelStyle: GoogleFonts.rubik(
-                                    fontSize: 13
+                                    fontSize: 13,
+                                    color: Colors.black
                                 )
                             ),
                             onChanged: (value){
                               setState(() {
-
-
+                                offset = 0;
+                                launchGetTopics = true;
                               });
+                              getTopics();
                             }
                         )
                     )
                 ),
+                launchGetTopics ?
+                const Center(
+                    child: CircularProgressIndicator(
+                        color: Color(0xff0b65c2)
+                    )
+                ) :
+                topics.isEmpty ?
+                Center(
+                    child: Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Text(
+                            "Aucun résultat",
+                            style: GoogleFonts.rubik(
+                                fontWeight: FontWeight.bold
+                            )
+                        )
+                    )
+                ):
                 Column(
                     children: topics.map(
                             (e) => Container(

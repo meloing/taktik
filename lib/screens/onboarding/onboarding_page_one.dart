@@ -24,7 +24,6 @@ class OnBoardingPageOneScreenState extends State<OnBoardingPageOneScreen> {
           ),
           child: Container(
               padding: const EdgeInsets.only(
-                  top: 390,
                   left: 20,
                   right: 20,
                   bottom: 15

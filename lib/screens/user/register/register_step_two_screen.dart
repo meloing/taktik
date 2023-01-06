@@ -13,13 +13,18 @@ class RegisterStepTwoScreen extends StatefulWidget {
 
 class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
   String level = "";
-  List levels = [];
+  List<Map<String, dynamic>> levels = [];
 
   Future getSubjects() async {
     List subjects = await UserOnlineRequests().getSubjects();
     setState(() {
-      for(Map subject in subjects){
-        levels.add(subject["subjectName"]);
+      for(Map<String, dynamic> subject in subjects){
+        levels.add(
+          {
+            "subjectName": subject["subjectName"],
+            "subjectCompletName": subject["subjectCompletName"],
+          }
+        );
       }
     });
   }
@@ -84,7 +89,7 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
                                         (e) => GestureDetector(
                                         onTap: (){
                                           setState(() {
-                                            level = e.toLowerCase();
+                                            level = e["subjectName"].toLowerCase();
                                           });
                                         },
                                         child: Container(
@@ -96,7 +101,7 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
                                             ),
                                             margin: const EdgeInsets.only(bottom: 15),
                                             decoration: BoxDecoration(
-                                                color: level == e.toLowerCase() ? Colors.orange : Colors.white,
+                                                color: level == e["subjectName"].toLowerCase() ? Colors.orange : Colors.white,
                                                 border: Border.all(
                                                     color: Colors.grey[200]!
                                                 ),
@@ -104,13 +109,13 @@ class RegisterStepTwoScreenState extends State<RegisterStepTwoScreen> {
                                             ),
                                             child: Center(
                                                 child: Text(
-                                                    e,
+                                                    e["subjectCompletName"],
                                                     textAlign: TextAlign.center,
                                                     style: GoogleFonts.rubik(
                                                         textStyle: TextStyle(
                                                             fontSize: 18,
                                                             fontWeight: FontWeight.w500,
-                                                            color: level == e.toLowerCase() ? Colors.white : Colors.black
+                                                            color: level == e["subjectName"].toLowerCase() ? Colors.white : Colors.black
                                                         )
                                                     )
                                                 )

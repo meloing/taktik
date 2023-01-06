@@ -88,11 +88,13 @@ class PointMethodOfflineRequests{
     );
   }
 
-  Future<List> getLocalPointMethods(int offset, int limit) async {
+  Future<List> getLocalPointMethods(int offset, int limit, String text) async {
     await createDatabase();
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
         "pointMethods",
+        where: "title LIKE ?",
+        whereArgs: ["%$text%"],
         offset: offset,
         limit: limit
     );
@@ -139,7 +141,7 @@ class PointMethodOfflineRequests{
     });
   }
 
-  Future getPointMethods(int offset, int limit) async{
+  Future getPointMethods(int offset, int limit, String text) async{
     late List values;
     String lastDate = "";
 
@@ -148,8 +150,8 @@ class PointMethodOfflineRequests{
       lastDate = val[0]["date"];
     }
 
-    values = await getLocalPointMethods(offset, limit);
-    if(values.isEmpty){
+    values = await getLocalPointMethods(offset, limit, text);
+    if(values.isEmpty && text.isEmpty){
       values = await PointMethodOnlineRequests().getPointMethods(lastDate, 10);
       await addOrUpdatePointMethod(values);
     }

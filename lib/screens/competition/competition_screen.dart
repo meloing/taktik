@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/competition_api.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:totale_reussite/screens/competition/specific_competition.dart';
 
@@ -174,7 +172,7 @@ class CompetitionScreenState extends State<CompetitionScreen> {
                                       children: [
                                         Expanded(
                                             child: Column(
-                                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                       "${updateCompetition.length} nouveaux concours",

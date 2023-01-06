@@ -16,6 +16,7 @@ class PointMethodScreenState extends State<PointMethodScreen> {
   List pointMethods = [];
   bool launchGetPointMethods = false;
   final ScrollController _controller = ScrollController();
+  TextEditingController searchController = TextEditingController();
 
   String returnDay(String date){
     DateTime newDate = DateTime.parse(date);
@@ -24,7 +25,8 @@ class PointMethodScreenState extends State<PointMethodScreen> {
   }
 
   Future getPointMethods() async{
-    List values = await PointMethodOfflineRequests().getPointMethods(offset, 20);
+    String text = searchController.text;
+    List values = await PointMethodOfflineRequests().getPointMethods(offset, 20, text);
     setState(() {
       if(offset == 0){
         pointMethods.clear();
@@ -71,23 +73,68 @@ class PointMethodScreenState extends State<PointMethodScreen> {
                     fontWeight: FontWeight.bold
                 )
             ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                  onPressed: (){},
-                  icon: const Icon(
-                      Icons.search_rounded,
-                      color: Color(0xff0b65c2)
-                  )
-              )
-            ]
+            centerTitle: true
         ),
         backgroundColor: const Color(0xffebe6e0),
         body: SingleChildScrollView(
             controller: _controller,
-            padding: const EdgeInsets.only(top: 10),
             child: Column(
               children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 5
+                    ),
+                    height: 44,
+                    child: TextField(
+                        cursorColor: Colors.black,
+                        controller: searchController,
+                        decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                color: Colors.black
+                            ),
+                            border: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)
+                            ),
+                            labelText: "Recherche un point methode",
+                            labelStyle: GoogleFonts.rubik(
+                                fontSize: 13,
+                                color: Colors.black
+                            )
+                        ),
+                        onChanged: (value){
+                          setState(() {
+                            offset = 0;
+                            launchGetPointMethods = true;
+                          });
+                          getPointMethods();
+                        }
+                    )
+                ),
+                launchGetPointMethods ?
+                const Center(
+                  child: CircularProgressIndicator(
+                      color: Color(0xff0b65c2)
+                  )
+                ) :
+                pointMethods.isEmpty ?
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Text(
+                        "Aucun résultat",
+                        style: GoogleFonts.rubik(
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                  )
+                ):
                 Column(
                     children: pointMethods.map(
                             (e) => Container(
